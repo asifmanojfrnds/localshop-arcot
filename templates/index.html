@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Town Market</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #f3f4f6;
+        }
+
+        .header {
+            background: #131921;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+        }
+
+        input, select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px 15px;
+            background: #f59e0b;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            border-radius: 5px;
+        }
+
+        .add-btn {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .add-btn a {
+            background: green;
+            color: white;
+            padding: 10px 15px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .delete {
+            color: red;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    🏪 My Town Market System
+</div>
+
+<div class="add-btn">
+    <a href="/add">➕ Add Shop</a>
+</div>
+
+<!-- FILTER -->
+<div class="top-bar">
+
+<form method="GET">
+
+    <input type="text" name="search" placeholder="Search shop">
+
+    <select name="category">
+        <option value="All">All</option>
+
+        <option>Bakery</option>
+        <option>Barber</option>
+        <option>Bookshop</option>
+        <option>Butcher</option>
+        <option>Hair salon</option>
+        <option>Coffee shop</option>
+        <option>Candy shop</option>
+        <option>Clothes shop</option>
+        <option>Boutique</option>
+        <option>Pharmacy</option>
+        <option>Delicatessen</option>
+        <option>Supermarket</option>
+        <option>Shopping mall</option>
+        <option>Street market</option>
+        <option>Hardware store</option>
+        <option>Florist</option>
+        <option>Newsstand</option>
+        <option>Corner shop</option>
+        <option>Jewelry shop</option>
+        <option>Gift shop</option>
+
+    </select>
+
+    <button type="submit">Search</button>
+
+</form>
+
+</div>
+
+<!-- SHOP LIST -->
+<div class="container">
+
+{% for shop in shops %}
+<div class="card">
+
+    <h3>{{ shop[1] }}</h3>
+    <p><b>Owner:</b> {{ shop[2] }}</p>
+    <p><b>Category:</b> {{ shop[3] }}</p>
+    <p><b>Location:</b> {{ shop[4] }}</p>
+
+    <a class="delete" href="/delete/{{ shop[0] }}" onclick="return confirm('Delete?')">
+        🗑 Delete
+    </a>
+
+</div>
+{% endfor %}
+
+</div>
+
+</body>
+</html>

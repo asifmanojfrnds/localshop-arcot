@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Shop</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #e5e7eb;
+        }
+
+        .header {
+            background: #131921;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 22px;
+        }
+
+        .box {
+            width: 400px;
+            margin: 40px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #f59e0b;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+
+        a {
+            display: block;
+            text-align: center;
+            margin-top: 10px;
+            color: #333;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    ➕ Add New Shop
+</div>
+
+<div class="box">
+
+<form method="POST">
+
+    <input type="text" name="name" placeholder="Shop Name" required>
+
+    <input type="text" name="owner" placeholder="Owner Name" required>
+
+    <select name="category">
+
+        <option>Bakery</option>
+        <option>Barber</option>
+        <option>Bookshop</option>
+        <option>Butcher</option>
+        <option>Hair salon</option>
+        <option>Coffee shop</option>
+        <option>Candy shop</option>
+        <option>Clothes shop</option>
+        <option>Boutique</option>
+        <option>Pharmacy</option>
+        <option>Delicatessen</option>
+        <option>Supermarket</option>
+        <option>Shopping mall</option>
+        <option>Street market</option>
+        <option>Hardware store</option>
+        <option>Florist</option>
+        <option>Newsstand</option>
+        <option>Corner shop</option>
+        <option>Jewelry shop</option>
+        <option>Gift shop</option>
+
+    </select>
+
+    <input type="text" name="location" placeholder="Location" required>
+
+    <button type="submit">Save Shop</button>
+
+</form>
+
+<a href="/">⬅ Back</a>
+
+</div>
+
+</body>
+</html>
