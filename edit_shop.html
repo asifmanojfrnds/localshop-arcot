@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Shop</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f7fa;
+            text-align: center;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            margin: 50px auto;
+            width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Edit Shop</h2>
+
+<form method="POST">
+    <input type="text" name="name" value="{{ shop[1] }}" required>
+    <input type="text" name="owner" value="{{ shop[2] }}" required>
+
+    <select name="category">
+        <option {% if shop[3]=='Grocery' %}selected{% endif %}>Grocery</option>
+        <option {% if shop[3]=='Medical' %}selected{% endif %}>Medical</option>
+        <option {% if shop[3]=='Tea Shop' %}selected{% endif %}>Tea Shop</option>
+        <option {% if shop[3]=='Bakery' %}selected{% endif %}>Bakery</option>
+    </select>
+
+    <input type="text" name="location" value="{{ shop[4] }}" required>
+
+    <button>Update</button>
+</form>
+
+</body>
+</html>

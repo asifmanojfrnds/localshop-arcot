@@ -1,16 +1,15 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect
 import sqlite3
-import os
 
 app = Flask(__name__)
-app.secret_key = "supersecretkey"
 
-# ---------------- DATABASE ----------------
+# -------------------------
+# DATABASE SETUP
+# -------------------------
 def init_db():
-    conn = sqlite3.connect("shops.db")
+    conn = sqlite3.connect('shops.db')
     c = conn.cursor()
-
-    c.execute("""
+    c.execute('''
         CREATE TABLE IF NOT EXISTS shops (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
@@ -18,100 +17,100 @@ def init_db():
             category TEXT,
             location TEXT
         )
-    """)
-
+    ''')
     conn.commit()
     conn.close()
 
 init_db()
 
-# ---------------- HOME ----------------
-@app.route("/")
-def home():
-    category = request.args.get("category")
-    search = request.args.get("search")
+# -------------------------
+# HOME PAGE (WITH FILTER)
+# -------------------------
+@app.route('/')
+def index():
+    category = request.args.get('category')
 
-    conn = sqlite3.connect("shops.db")
+    conn = sqlite3.connect('shops.db')
     c = conn.cursor()
 
-    query = "SELECT * FROM shops WHERE 1=1"
-    params = []
+    if category:
+        c.execute("SELECT * FROM shops WHERE category=?", (category,))
+    else:
+        c.execute("SELECT * FROM shops")
 
-    if category and category != "All":
-        query += " AND category=?"
-        params.append(category)
-
-    if search:
-        query += " AND name LIKE ?"
-        params.append("%" + search + "%")
-
-    c.execute(query, params)
     shops = c.fetchall()
     conn.close()
 
-    return render_template("index.html", shops=shops)
+    return render_template('index.html', shops=shops)
 
-# ---------------- LOGIN ----------------
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+# -------------------------
+# ADD SHOP
+# -------------------------
+@app.route('/add', methods=['GET', 'POST'])
+def add_shop():
+    if request.method == 'POST':
+        name = request.form['name']
+        owner = request.form['owner']
+        category = request.form['category']
+        location = request.form['location']
 
-        if username == "admin" and password == "1234":
-            session["user"] = username
-            return redirect("/")
-        else:
-            return "Invalid login"
-
-    return render_template("login.html")
-
-# ---------------- LOGOUT ----------------
-@app.route("/logout")
-def logout():
-    session.pop("user", None)
-    return redirect("/")
-
-# ---------------- ADD SHOP ----------------
-@app.route("/add", methods=["GET", "POST"])
-def add():
-    if "user" not in session:
-        return redirect("/login")
-
-    if request.method == "POST":
-        name = request.form["name"]
-        owner = request.form["owner"]
-        category = request.form["category"]
-        location = request.form["location"]
-
-        conn = sqlite3.connect("shops.db")
+        conn = sqlite3.connect('shops.db')
         c = conn.cursor()
-        c.execute("""
-            INSERT INTO shops (name, owner, category, location)
-            VALUES (?, ?, ?, ?)
-        """, (name, owner, category, location))
+        c.execute(
+            "INSERT INTO shops (name, owner, category, location) VALUES (?, ?, ?, ?)",
+            (name, owner, category, location)
+        )
         conn.commit()
         conn.close()
 
-        return redirect("/")
+        return redirect('/')
 
-    return render_template("add.html")
+    return render_template('add_shop.html')
 
-# ---------------- DELETE ----------------
-@app.route("/delete/<int:id>")
-def delete(id):
-    if "user" not in session:
-        return redirect("/login")
-
-    conn = sqlite3.connect("shops.db")
+# -------------------------
+# DELETE SHOP
+# -------------------------
+@app.route('/delete/<int:id>')
+def delete_shop(id):
+    conn = sqlite3.connect('shops.db')
     c = conn.cursor()
     c.execute("DELETE FROM shops WHERE id=?", (id,))
     conn.commit()
     conn.close()
+    return redirect('/')
 
-    return redirect("/")
+# -------------------------
+# EDIT SHOP
+# -------------------------
+@app.route('/edit/<int:id>', methods=['GET', 'POST'])
+def edit_shop(id):
+    conn = sqlite3.connect('shops.db')
+    c = conn.cursor()
 
-# ---------------- DEPLOYMENT ENTRY ----------------
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    if request.method == 'POST':
+        name = request.form['name']
+        owner = request.form['owner']
+        category = request.form['category']
+        location = request.form['location']
+
+        c.execute("""
+            UPDATE shops 
+            SET name=?, owner=?, category=?, location=? 
+            WHERE id=?
+        """, (name, owner, category, location, id))
+
+        conn.commit()
+        conn.close()
+        return redirect('/')
+
+    c.execute("SELECT * FROM shops WHERE id=?", (id,))
+    shop = c.fetchone()
+    conn.close()
+
+    return render_template('edit_shop.html', shop=shop)
+
+# -------------------------
+# RUN APP
+# -------------------------
+if __name__ == '__main__':
+    app.run(debug=True)

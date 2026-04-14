@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Shop</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #f5f7fa;
+            text-align: center;
+        }
+
+        form {
+            background: white;
+            padding: 20px;
+            margin: 50px auto;
+            width: 300px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+        }
+
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>Add Shop</h2>
+
+<form method="POST">
+    <input type="text" name="name" placeholder="Shop Name" required>
+    <input type="text" name="owner" placeholder="Owner Name" required>
+
+    <select name="category">
+        <option>Grocery</option>
+        <option>Medical</option>
+        <option>Tea Shop</option>
+        <option>Bakery</option>
+    </select>
+
+    <input type="text" name="location" placeholder="Location" required>
+
+    <button>Add Shop</button>
+</form>
+
+</body>
+</html>
