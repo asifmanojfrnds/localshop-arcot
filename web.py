@@ -1,17 +1,22 @@
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
+import os
 
 app = Flask(__name__)
-app.secret_key = 'secret123'
+app.secret_key = os.environ.get('SECRET_KEY', 'secret123')
+
+# -------------------------
+# DATABASE PATH (Render SAFE)
+# -------------------------
+DB_PATH = '/tmp/shops.db'
 
 # -------------------------
 # DATABASE SETUP
 # -------------------------
 def init_db():
-    conn = sqlite3.connect('shops.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
-    # Shops table
     c.execute('''
         CREATE TABLE IF NOT EXISTS shops (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,7 +27,6 @@ def init_db():
         )
     ''')
 
-    # Users table
     c.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,6 +39,7 @@ def init_db():
     conn.commit()
     conn.close()
 
+# Run DB init safely
 init_db()
 
 # -------------------------
@@ -42,7 +47,7 @@ init_db()
 # -------------------------
 @app.route('/')
 def index():
-    conn = sqlite3.connect('shops.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("SELECT * FROM shops")
     shops = c.fetchall()
@@ -56,7 +61,7 @@ def index():
     )
 
 # -------------------------
-# REGISTER (AUTO ADMIN)
+# REGISTER
 # -------------------------
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -64,18 +69,13 @@ def register():
         username = request.form['username']
         password = request.form['password']
 
-        conn = sqlite3.connect('shops.db')
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
 
-        # Check if any user exists
         c.execute("SELECT COUNT(*) FROM users")
         count = c.fetchone()[0]
 
-        # First user becomes admin
-        if count == 0:
-            role = 'admin'
-        else:
-            role = 'user'
+        role = 'admin' if count == 0 else 'user'
 
         c.execute(
             "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
@@ -98,7 +98,7 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        conn = sqlite3.connect('shops.db')
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute(
             "SELECT * FROM users WHERE username=? AND password=?",
@@ -125,7 +125,7 @@ def logout():
     return redirect('/')
 
 # -------------------------
-# ADD SHOP (USER LOGIN REQUIRED)
+# ADD SHOP
 # -------------------------
 @app.route('/add', methods=['GET', 'POST'])
 def add_shop():
@@ -138,7 +138,7 @@ def add_shop():
         category = request.form['category']
         location = request.form['location']
 
-        conn = sqlite3.connect('shops.db')
+        conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute(
             "INSERT INTO shops (name, owner, category, location) VALUES (?, ?, ?, ?)",
@@ -159,7 +159,7 @@ def delete_shop(id):
     if session.get('role') != 'admin':
         return "Access Denied"
 
-    conn = sqlite3.connect('shops.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
     c.execute("DELETE FROM shops WHERE id=?", (id,))
     conn.commit()
@@ -175,7 +175,7 @@ def edit_shop(id):
     if session.get('role') != 'admin':
         return "Access Denied"
 
-    conn = sqlite3.connect('shops.db')
+    conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
     if request.method == 'POST':
