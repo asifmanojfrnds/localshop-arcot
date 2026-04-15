@@ -1,14 +1,12 @@
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
 import os
+from datetime import date
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'secret123')
 
-# -------------------------
-# DATABASE PATH (Render SAFE)
-# -------------------------
-DB_PATH = '/tmp/shops.db'
+DB_PATH = 'shops.db'
 
 # -------------------------
 # DATABASE SETUP
@@ -17,6 +15,7 @@ def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
 
+    # Shops
     c.execute('''
         CREATE TABLE IF NOT EXISTS shops (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,6 +26,7 @@ def init_db():
         )
     ''')
 
+    # Users
     c.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -36,26 +36,50 @@ def init_db():
         )
     ''')
 
+    # Offers
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS offers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT,
+            discount TEXT,
+            start_date TEXT,
+            end_date TEXT
+        )
+    ''')
+
     conn.commit()
     conn.close()
 
-# Run DB init safely
 init_db()
 
 # -------------------------
-# HOME
+# HOME (SHOW OFFERS + SHOPS)
 # -------------------------
 @app.route('/')
 def index():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
+
+    # Shops
     c.execute("SELECT * FROM shops")
     shops = c.fetchall()
+
+    # Active Offers
+    today = str(date.today())
+
+    c.execute("""
+        SELECT * FROM offers
+        WHERE start_date <= ? AND end_date >= ?
+    """, (today, today))
+
+    offers = c.fetchall()
+
     conn.close()
 
     return render_template(
         'index.html',
         shops=shops,
+        offers=offers,
         role=session.get('role'),
         user=session.get('user')
     )
@@ -75,7 +99,7 @@ def register():
         c.execute("SELECT COUNT(*) FROM users")
         count = c.fetchone()[0]
 
-        role = 'admin' if count == 0 else 'user'
+        role = "admin" if count == 0 else "user"
 
         c.execute(
             "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
@@ -100,6 +124,7 @@ def login():
 
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
+
         c.execute(
             "SELECT * FROM users WHERE username=? AND password=?",
             (username, password)
@@ -140,10 +165,12 @@ def add_shop():
 
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
+
         c.execute(
             "INSERT INTO shops (name, owner, category, location) VALUES (?, ?, ?, ?)",
             (name, owner, category, location)
         )
+
         conn.commit()
         conn.close()
 
@@ -152,7 +179,36 @@ def add_shop():
     return render_template('add_shop.html')
 
 # -------------------------
-# DELETE (ADMIN ONLY)
+# ADD OFFER (ADMIN ONLY)
+# -------------------------
+@app.route('/add-offer', methods=['GET', 'POST'])
+def add_offer():
+    if session.get('role') != 'admin':
+        return "Access Denied"
+
+    if request.method == 'POST':
+        title = request.form['title']
+        discount = request.form['discount']
+        start_date = request.form['start_date']
+        end_date = request.form['end_date']
+
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+
+        c.execute(
+            "INSERT INTO offers (title, discount, start_date, end_date) VALUES (?, ?, ?, ?)",
+            (title, discount, start_date, end_date)
+        )
+
+        conn.commit()
+        conn.close()
+
+        return redirect('/')
+
+    return render_template('add_offer.html')
+
+# -------------------------
+# DELETE SHOP
 # -------------------------
 @app.route('/delete/<int:id>')
 def delete_shop(id):
@@ -168,38 +224,7 @@ def delete_shop(id):
     return redirect('/')
 
 # -------------------------
-# EDIT (ADMIN ONLY)
-# -------------------------
-@app.route('/edit/<int:id>', methods=['GET', 'POST'])
-def edit_shop(id):
-    if session.get('role') != 'admin':
-        return "Access Denied"
-
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-
-    if request.method == 'POST':
-        name = request.form['name']
-        owner = request.form['owner']
-        category = request.form['category']
-        location = request.form['location']
-
-        c.execute(
-            "UPDATE shops SET name=?, owner=?, category=?, location=? WHERE id=?",
-            (name, owner, category, location, id)
-        )
-        conn.commit()
-        conn.close()
-        return redirect('/')
-
-    c.execute("SELECT * FROM shops WHERE id=?", (id,))
-    shop = c.fetchone()
-    conn.close()
-
-    return render_template('edit_shop.html', shop=shop)
-
-# -------------------------
 # RUN
 # -------------------------
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)

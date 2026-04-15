@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h2>Add Offer</h2>
+
+<form method="POST">
+    <input name="title" placeholder="Offer Title" required>
+    <input name="discount" placeholder="Discount (ex: 20%)" required>
+    <input name="start_date" type="date" required>
+    <input name="end_date" type="date" required>
+    <button class="btn">Add Offer</button>
+</form>
+
+{% endblock %}

@@ -1,23 +1,14 @@
-<!DOCTYPE html>
-<html>
-<body>
+{% extends 'base.html' %}
+
+{% block content %}
 
 <h2>Add Shop</h2>
 
 <form method="POST">
-    <input name="name" placeholder="Shop Name"><br><br>
-
-    <select name="category">
-        <option>Grocery</option>
-        <option>Medical</option>
-        <option>Tea Shop</option>
-        <option>Bakery</option>
-    </select><br><br>
-
-    <input name="location" placeholder="Location"><br><br>
-
-    <button>Add</button>
+    <input name="name" placeholder="Shop Name" required>
+    <input name="category" placeholder="Category" required>
+    <input name="location" placeholder="Location" required>
+    <button class="btn">Add</button>
 </form>
 
-</body>
-</html>
+{% endblock %}

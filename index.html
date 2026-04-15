@@ -1,37 +1,36 @@
-<!DOCTYPE html>
-<html>
-<body>
+{% extends 'base.html' %}
 
-<h1>My Town Shops</h1>
+{% block content %}
 
-{% if user %}
-<p>Welcome {{ user }} ({{ role }})</p>
-<a href="/logout">Logout</a>
-{% else %}
-<a href="/login">Login</a>
-<a href="/register">Register</a>
-{% endif %}
+<h2>🔥 Live Offers</h2>
 
-<br><br>
-
-<a href="/add">Add Shop</a>
-
-<hr>
-
-{% for shop in shops %}
-<div>
-    <h3>{{ shop[1] }}</h3>
-    <p>Owner: {{ shop[2] }}</p>
-    <p>Category: {{ shop[3] }}</p>
-    <p>Location: {{ shop[4] }}</p>
-
-    {% if role == 'admin' %}
-        <a href="/edit/{{ shop[0] }}">Edit</a> |
-        <a href="/delete/{{ shop[0] }}">Delete</a>
-    {% endif %}
-</div>
-<hr>
+<div class="grid">
+{% for offer in offers %}
+    <div class="card">
+        <h3>{{ offer[1] }}</h3>
+        <p><b>{{ offer[2] }}</b></p>
+        <p>📅 {{ offer[3] }} → {{ offer[4] }}</p>
+    </div>
 {% endfor %}
+</div>
 
-</body>
-</html>
+<hr>
+
+<h2>🏬 Shops</h2>
+
+<div class="grid">
+{% for shop in shops %}
+    <div class="card">
+        <h3>{{ shop[1] }}</h3>
+        <p><b>Owner:</b> {{ shop[2] }}</p>
+        <p><b>Category:</b> {{ shop[3] }}</p>
+        <p><b>Location:</b> {{ shop[4] }}</p>
+
+        {% if role == 'admin' %}
+            <a class="btn" href="/delete/{{ shop[0] }}">Delete</a>
+        {% endif %}
+    </div>
+{% endfor %}
+</div>
+
+{% endblock %}
